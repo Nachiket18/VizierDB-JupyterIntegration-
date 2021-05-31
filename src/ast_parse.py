@@ -5,6 +5,7 @@ Created on 11-May-2021
 '''
 import ast
 from _ast import Is
+from collections import deque
 
 
 class visitAST(ast.NodeVisitor):
@@ -15,18 +16,44 @@ class visitAST(ast.NodeVisitor):
         
         self.line_dict_left = {}
         self.line_dict_right = {}
-    
-    def generic_visit(self,node):
-        #print(node.__class__.__name__)
-        if isinstance(node,ast.Name):  
-            if (isinstance(node.ctx,ast.Store)):
-                self.line_dict_left[node.lineno] = node.id
-                
-            elif(isinstance(node.ctx,ast.Load)):
-                self.line_dict_right[node.lineno] = node.id
-                      
+        self.scope_dict_stack = deque()
+        self.output_loop_dicts = {}
+        self.loop_end_line = -1
         
+    def generic_visit(self,node):
+        print(node.__class__.__name__)            
+        if isinstance(node,ast.Name):
+            if not self.scope_dict_stack:
+                if (isinstance(node.ctx,ast.Store)):
+                    self.line_dict_left[node.lineno] = node.id
+
+                elif(isinstance(node.ctx,ast.Load)):
+                    self.line_dict_right[node.lineno] = node.id
+            else:
+                print("Loop processing",node.lineno)
+                left_dict,right_dict = self.scope_dict_stack[0]
+                if (isinstance(node.ctx,ast.Store)):
+                    left_dict[node.lineno] = node.id
+                elif(isinstance(node.ctx,ast.Load)):
+                    right_dict[node.lineno] = node.id    
+                          
+        elif isinstance(node,(ast.For,ast.While)):
+            dict_loop_left  = {}
+            dict_loop_right = {}
+            self.scope_dict_stack.append((dict_loop_left,dict_loop_right))
+            self.output_loop_dicts[node.lineno] = ((dict_loop_left,dict_loop_right))
+            self.loop_end_line = node.body[-1].lineno
+            #print("Node Start",node.lineno)
+        
+        if (isinstance(node,ast.expr) or isinstance(node,ast.stmt)) == True and node.lineno == self.loop_end_line + 1  and self.loop_end_line != -1:
+            self.scope_dict_stack.pop()
+            self.loop_end_line = -1    
+
+        
+            
         ast.NodeVisitor.generic_visit(self,node)
+    
+        
     
     def display_left_dict(self):
         return self.line_dict_left
@@ -34,6 +61,8 @@ class visitAST(ast.NodeVisitor):
     def display_right_dict(self):
         return self.line_dict_right
     
+    def display_loop_dictionaries(self):
+        return self.output_loop_dicts
             
 class Vertex:
     def __init__(self,key):
@@ -100,17 +129,28 @@ def main():
     
     vis = visitAST()
     vis.visit(tree)
-    print(vis.line_dict_left)
-    print(vis.line_dict_right)
+    print(vis.display_left_dict())
+    print(vis.display_right_dict())
+    print(vis.display_loop_dictionaries())
     #for node in ast.walk(tree):
     #    line_dict = {}
     #    print(node.__class__.__name__)
     
     g = Graph()
     
-    for i in range(len(vis.line_dict_left)):
-        g.addVertex(i)
-     
+    for key,value in vis.display_left_dict().items():
+        g.addVertex(key)
+    
+    for key,value in vis.display_loop_dictionaries().items():
+        dict_left = value[0]
+        dict_right = value[1]
+        for key,value in dict_left.items():
+            g.addVertex(key)
+            
+        for key,value in dict_right.items():
+            if g.getVertex(key) == None:
+                g.addVertex(key)
+                
     dependency_list = {}
      
     for key,value in vis.line_dict_right.items():
@@ -118,11 +158,24 @@ def main():
             if value == value_1 and key_1 < key:
                 dependency_list[key_1] = (key,value)
      
+     
+    for key_line,dict_loop in vis.display_loop_dictionaries().items():
+            dict_left = dict_loop[0]
+            dict_right = dict_loop[1]
+            #print(dict_left)
+            #print(dict_right)
+            for key,value in dict_right.items():
+                for key_1,value_1 in dict_left.items():
+                    if value == value_1 and key_1 < key:
+                        dependency_list[key_1] = (key,value)
+    
+    
     for key,value in dependency_list.items():
         elem_1,elem_2 = value
         g.addEdge(key,elem_1,elem_2) 
-     
-     #print(dependency_list)
+    
+    
+    #print(dependency_list)
      
     for v in g:
         if not v.getConnections():
