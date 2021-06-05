@@ -5,54 +5,57 @@ Created on 11-May-2021
 '''
 import ast
 from _ast import Is
-from collections import deque
+from collections import deque,defaultdict
+from builtins import isinstance
 
 
-class visitAST(ast.NodeVisitor):
-    
-    
+
+class Visitast(ast.NodeVisitor):
+        
     
     def __init__(self):
         
-        self.line_dict_left = {}
-        self.line_dict_right = {}
+        self.line_dict_left = defaultdict(list)
+        self.line_dict_right = defaultdict(list)
         self.scope_dict_stack = deque()
         self.output_loop_dicts = {}
         self.loop_end_line = -1
         
     def generic_visit(self,node):
-        print(node.__class__.__name__)            
+        #print(node.__class__.__name__)            
         if isinstance(node,ast.Name):
+            
             if not self.scope_dict_stack:
                 if (isinstance(node.ctx,ast.Store)):
-                    self.line_dict_left[node.lineno] = node.id
-
+                    self.line_dict_left[node.lineno].append(node.id)
+                
                 elif(isinstance(node.ctx,ast.Load)):
-                    self.line_dict_right[node.lineno] = node.id
+                    self.line_dict_right[node.lineno].append(node.id)    
+            
             else:
-                print("Loop processing",node.lineno)
+                
                 left_dict,right_dict = self.scope_dict_stack[0]
                 if (isinstance(node.ctx,ast.Store)):
                     left_dict[node.lineno] = node.id
                 elif(isinstance(node.ctx,ast.Load)):
-                    right_dict[node.lineno] = node.id    
-                          
+                    right_dict[node.lineno] = node.id 
+                       
         elif isinstance(node,(ast.For,ast.While)):
-            dict_loop_left  = {}
-            dict_loop_right = {}
+            print("In Loop")
+            dict_loop_left  = defaultdict(list)
+            dict_loop_right = defaultdict(list)
             self.scope_dict_stack.append((dict_loop_left,dict_loop_right))
             self.output_loop_dicts[node.lineno] = ((dict_loop_left,dict_loop_right))
-            self.loop_end_line = node.body[-1].lineno
+            self.loop_end_line = node.end_lineno
+            
+            #self.loop_end_line = node.body[-1].lineno
             #print("Node Start",node.lineno)
         
-        if (isinstance(node,ast.expr) or isinstance(node,ast.stmt)) == True and node.lineno == self.loop_end_line + 1  and self.loop_end_line != -1:
+        ast.NodeVisitor.generic_visit(self,node)
+        
+        if (isinstance(node,ast.expr) or isinstance(node,ast.stmt)) == True and node.lineno == self.loop_end_line+1  and self.loop_end_line != -1:
             self.scope_dict_stack.pop()
             self.loop_end_line = -1    
-
-        
-            
-        ast.NodeVisitor.generic_visit(self,node)
-    
         
     
     def display_left_dict(self):
@@ -63,6 +66,8 @@ class visitAST(ast.NodeVisitor):
     
     def display_loop_dictionaries(self):
         return self.output_loop_dicts
+
+            
             
 class Vertex:
     def __init__(self,key):
@@ -127,7 +132,7 @@ def main():
     
     print(ast.dump(tree, indent=4))
     
-    vis = visitAST()
+    vis = Visitast()
     vis.visit(tree)
     print(vis.display_left_dict())
     print(vis.display_right_dict())
@@ -151,28 +156,56 @@ def main():
             if g.getVertex(key) == None:
                 g.addVertex(key)
                 
-    dependency_list = {}
+    dependency_list = defaultdict(list)
+    
+    d2 = defaultdict(list)
      
-    for key,value in vis.line_dict_right.items():
-        for key_1,value_1 in vis.line_dict_left.items():
-            if value == value_1 and key_1 < key:
-                dependency_list[key_1] = (key,value)
+    for k, v in vis.display_left_dict().items():
+            for elem in v:
+                d2[elem].append(k)
+        
+#     for key,value in vis.line_dict_right.items():
+#         for key_1,value_1 in vis.line_dict_left.items():
+#             if value == value_1 and key_1 < key:
+#                 dependency_list[key_1] = (key,value)
+    
+    print("D2",d2)
      
-     
+    for key,value in vis.display_right_dict().items():
+            for j in value:
+                key_left = d2[j]
+                if isinstance(key_left,list):
+                    for k in key_left:
+                        if k < key:
+                            dependency_list[k].append((key,j))
+    
+    #print(dependency_list) 
     for key_line,dict_loop in vis.display_loop_dictionaries().items():
+             
             dict_left = dict_loop[0]
             dict_right = dict_loop[1]
-            #print(dict_left)
-            #print(dict_right)
+             
+            d3 = dict((v, k) for k, v in dict_left.items()) 
+            print("d3",d3)
             for key,value in dict_right.items():
-                for key_1,value_1 in dict_left.items():
-                    if value == value_1 and key_1 < key:
-                        dependency_list[key_1] = (key,value)
     
-    
+                    key_left = d3.get(value, None)
+                    if key_left is not None and key_left < key: 
+                        dependency_list[key_left].append((key,value))
+                        
+                    elif key_left is None:
+        
+                        key_left_main = d2.get(value,None)
+                    
+                        for k in key_left_main:
+                            if k < key:
+                                dependency_list[k].append((key,value))
+                    
+                    
     for key,value in dependency_list.items():
-        elem_1,elem_2 = value
-        g.addEdge(key,elem_1,elem_2) 
+        for data in value:
+            elem_1,elem_2 = data
+            g.addEdge(key,elem_1,elem_2) 
     
     
     #print(dependency_list)
