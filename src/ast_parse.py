@@ -4,9 +4,9 @@ Created on 11-May-2021
 '''
 
 import ast
-from _ast import Is
 from collections import deque,defaultdict
 from builtins import isinstance
+
 
 
 
@@ -21,47 +21,149 @@ class Visitast(ast.NodeVisitor):
         self.control_flow_stack = deque()  
         self.output_loop_dicts = defaultdict(list) 
         self.output_control_flow_dicts = defaultdict(list)
+        self.output_func_dicts = defaultdict(list)
+        self.import_block = False
+        self.function_scope_dict_stack = deque()
         
     def generic_visit(self,node):
         #print(node.__class__.__name__)            
-        if isinstance(node,ast.Name):
+        if isinstance(node,ast.Name):     
             
-            if not self.scope_dict_stack:
+            if not (self.scope_dict_stack or self.control_flow_stack or self.function_scope_dict_stack):
                 
                 if (isinstance(node.ctx,ast.Store)):
                     self.line_dict_left[node.lineno].append(node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
                     self.line_dict_right[node.lineno].append(node.id)    
+            
+            elif self.scope_dict_stack:
                 
-#                 if ((isinstance(node.ctx,ast.Store)) or (isinstance(node.ctx,ast.Load))) and self.control_flow_stack:
-#                     control_flow_dict = self.control_flow_stack[0]
-#                     control_flow_dict[node.id].append(node.lineno)
-#
-            else:
+                line_no_control = self.scope_dict_stack[0]
                 
-                left_dict,right_dict = self.scope_dict_stack[0]
+                output_control = self.output_loop_dicts[line_no_control]
+                
+                left_dict_control = output_control[0]
+                right_dict_control = output_control[1]
+                
+                if (isinstance(node.ctx,ast.Store)):
+                    left_dict_control[node.lineno] = (node.id)
+                
+                elif(isinstance(node.ctx,ast.Load)):
+                    right_dict_control[node.lineno].append(node.id) 
+                
+                self.output_loop_dicts[line_no_control] = (left_dict_control,right_dict_control)
+            
+            elif self.control_flow_stack:
+                
+                line_no_control = self.control_flow_stack[0]
+                
+                output_control = self.output_control_flow_dicts[line_no_control]
+                
+                left_dict_control = output_control[0]
+                right_dict_control = output_control[1]
+                
+                if (isinstance(node.ctx,ast.Store)):
+                    left_dict_control[node.lineno] = (node.id)
+                
+                elif(isinstance(node.ctx,ast.Load)):
+                    right_dict_control[node.lineno].append(node.id) 
+                
+                self.output_control_flow_dicts[line_no_control] = (left_dict_control,right_dict_control)
+                  
+                
+                    
+            elif self.function_scope_dict_stack:
+                
+                line_no_func = self.function_scope_dict_stack[0]
+                
+                out_loop_func = self.output_func_dicts[line_no_func]
+                
+                left_dict  = out_loop_func[0]
+                right_dict = out_loop_func[1] 
+                
                 if (isinstance(node.ctx,ast.Store)):
                     left_dict[node.lineno].append(node.id)
+                
                 elif(isinstance(node.ctx,ast.Load)):
-                    right_dict[node.lineno].append(node.id) 
+                    right_dict[node.lineno].append(node.id)  
+                
+                self.output_func_dicts[line_no_func] = (left_dict,right_dict)   
             
-            if self.control_flow_stack:
-                if (isinstance(node.ctx,ast.Store)):
-                    self.output_control_flow_dicts[node.lineno] = (node.id)
-                       
+            
+            else:
+                
+                line_no = self.scope_dict_stack[0] 
+                out_loop = self.output_loop_dicts[line_no]  
+                
+                left_dict = out_loop[0]
+                right_dict = out_loop[1]
+            
+                
+#                 if (isinstance(node.ctx,ast.Store)):
+#                     left_dict[node.lineno].append(node.id)
+#                 elif(isinstance(node.ctx,ast.Load)):
+#                     right_dict[node.lineno].append(node.id)
+                
+                self.output_loop_dicts[line_no] = (left_dict,right_dict)
+                
+                
+                
+           
+        elif isinstance(node,(ast.arg)) and self.function_scope_dict_stack:
+            
+    
+            func_lineno = self.function_scope_dict_stack[0]
+            
+            out_func_dict =  self.output_func_dicts[func_lineno]
+            
+            left_dict = out_func_dict[0]
+            right_dict = out_func_dict[1]
+            
+            left_dict[node.lineno].append(node.arg)
+                
+            self.output_func_dicts[func_lineno] = (left_dict,right_dict)
+      
+            
+        elif isinstance(node,(ast.FunctionDef)):
+            
+            dict_loop_left  = defaultdict(list)
+            dict_loop_right = defaultdict(list)
+            self.function_scope_dict_stack.append(node.name)
+            self.output_func_dicts[node.name] = (dict_loop_left,dict_loop_right)
+                          
+        
         elif isinstance(node,(ast.For,ast.While)):
             
             dict_loop_left  = defaultdict(list)
             dict_loop_right = defaultdict(list)
-            self.scope_dict_stack.append((dict_loop_left,dict_loop_right))
-            self.output_loop_dicts[node.lineno] = ((dict_loop_left,dict_loop_right))
+            self.scope_dict_stack.append(node.lineno)
+            self.output_loop_dicts[node.lineno] = (dict_loop_left,dict_loop_right)
         
         elif isinstance(node,ast.If):
+            
+            dict_loop_left  = defaultdict(list)
+            dict_loop_right = defaultdict(list)
             self.control_flow_stack.append(node.lineno)
+            self.output_control_flow_dicts[node.lineno] = (dict_loop_left,dict_loop_right) 
+        
+        elif isinstance(node,(ast.Import,ast.ImportFrom)):
+            self.import_block = True
+        
+    
+        elif self.import_block == True:
+            if node.asname != None:
+                self.line_dict_left[0].append(node.asname)
+            else:
+                self.line_dict_left[0].append(node.name)
+                
+        
+        #if isinstance(node,ast.Call):           
             
-            
+        
+        
         ast.NodeVisitor.generic_visit(self,node)
+            
         
         if isinstance(node,(ast.For,ast.While)):
             self.scope_dict_stack.pop()
@@ -69,11 +171,11 @@ class Visitast(ast.NodeVisitor):
         elif isinstance(node,(ast.If)):
             self.control_flow_stack.pop()
         
+        elif isinstance(node,(ast.Import,ast.ImportFrom)):
+            self.import_block = False
         
-        
-#         if (isinstance(node,ast.expr) or isinstance(node,ast.stmt)) == True and node.lineno == self.loop_end_line+1  and self.loop_end_line != -1:
-#             self.scope_dict_stack.pop()
-#             self.loop_end_line = -1    
+        elif isinstance(node,(ast.FunctionDef)):
+            self.function_scope_dict_stack.pop()
         
     
     def display_left_dict(self):
@@ -87,6 +189,9 @@ class Visitast(ast.NodeVisitor):
     
     def display_control_flow_dictionaries(self):
         return self.output_control_flow_dicts
+    
+    def display_func_dictionaries(self):
+        return self.output_func_dicts
             
             
 class Vertex:
@@ -157,6 +262,7 @@ def main():
     print(vis.display_left_dict())
     print(vis.display_right_dict())
     print(vis.display_loop_dictionaries())
+    print("Func",vis.display_func_dictionaries())
     #for node in ast.walk(tree):
     #    line_dict = {}
     #    print(node.__class__.__name__)
@@ -232,6 +338,9 @@ def main():
                                         dependency_list[k].append((key,j))
                                     
                     
+    
+    
+    
     for key,value in dependency_list.items():
         for data in value:
             elem_1,elem_2 = data
