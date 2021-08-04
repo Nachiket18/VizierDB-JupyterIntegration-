@@ -8,6 +8,14 @@ from collections import deque,defaultdict
 from builtins import isinstance
 
 
+##
+## class Visitast - responsible for parsing the source code and generating the AST (Abstract Syntax Tree).
+## This is phase one of the process where we store information about variables in dictionaries for bookkeeping.
+##
+## INFO - 1. The key information that is stored is when variable gets assigned a value and when the variable is referred.
+##        2. Separate dictionaries are kept for functions,loops and control flow statements
+##
+
 
 
 class Visitast(ast.NodeVisitor):
@@ -15,8 +23,8 @@ class Visitast(ast.NodeVisitor):
     
     def __init__(self):
         
-        self.line_dict_left = defaultdict(list)
-        self.line_dict_right = defaultdict(list)
+        self.main_dict_store = defaultdict(list)
+        self.main_dict_load = defaultdict(list)
         self.scope_dict_stack = deque()
         self.control_flow_stack = deque()  
         self.output_loop_dicts = defaultdict(list) 
@@ -31,64 +39,81 @@ class Visitast(ast.NodeVisitor):
             
             if not (self.scope_dict_stack or self.control_flow_stack or self.function_scope_dict_stack):
                 
+                ##
+                ## The variables captured in main program flow
+                ##
+                
                 if (isinstance(node.ctx,ast.Store)):
-                    self.line_dict_left[node.lineno].append(node.id)
+                    self.main_dict_store[node.lineno].append(node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
-                    self.line_dict_right[node.lineno].append(node.id)    
+                    self.main_dict_load[node.lineno].append(node.id)    
             
             elif self.scope_dict_stack:
+                
+                ##
+                ## Variables in a loop are captured
+                ##
                 
                 line_no_control = self.scope_dict_stack[0]
                 
                 output_control = self.output_loop_dicts[line_no_control]
                 
-                left_dict_control = output_control[0]
-                right_dict_control = output_control[1]
+                store_dict_scope = output_control[0]
+                load_dict_scope = output_control[1]
                 
                 if (isinstance(node.ctx,ast.Store)):
-                    left_dict_control[node.lineno] = (node.id)
+                    store_dict_scope[node.lineno] = (node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
-                    right_dict_control[node.lineno].append(node.id) 
+                    load_dict_scope[node.lineno].append(node.id) 
                 
-                self.output_loop_dicts[line_no_control] = (left_dict_control,right_dict_control)
+                self.output_loop_dicts[line_no_control] = (store_dict_scope,load_dict_scope)
             
             elif self.control_flow_stack:
+                
+                ##
+                ## Variables in control flow are captured
+                ##
                 
                 line_no_control = self.control_flow_stack[0]
                 
                 output_control = self.output_control_flow_dicts[line_no_control]
                 
-                left_dict_control = output_control[0]
-                right_dict_control = output_control[1]
+                store_dict_control = output_control[0]
+                load_dict_control = output_control[1]
                 
                 if (isinstance(node.ctx,ast.Store)):
-                    left_dict_control[node.lineno] = (node.id)
+                    store_dict_control[node.lineno] = (node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
-                    right_dict_control[node.lineno].append(node.id) 
+                    load_dict_control[node.lineno].append(node.id) 
                 
-                self.output_control_flow_dicts[line_no_control] = (left_dict_control,right_dict_control)
+                self.output_control_flow_dicts[line_no_control] = (store_dict_control,load_dict_control)
                   
                 
                     
             elif self.function_scope_dict_stack:
                 
+                ##
+                ## Variables present in function definition are captured
+                ##
+                
+                
                 line_no_func = self.function_scope_dict_stack[0]
                 
                 out_loop_func = self.output_func_dicts[line_no_func]
                 
-                left_dict  = out_loop_func[0]
-                right_dict = out_loop_func[1] 
+                store_dict  = out_loop_func[0]
+                load_dict = out_loop_func[1] 
                 
                 if (isinstance(node.ctx,ast.Store)):
-                    left_dict[node.lineno].append(node.id)
+                    store_dict[node.lineno].append(node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
-                    right_dict[node.lineno].append(node.id)  
+                    load_dict[node.lineno].append(node.id)  
                 
-                self.output_func_dicts[line_no_func] = (left_dict,right_dict)   
+                self.output_func_dicts[line_no_func] = (store_dict,load_dict)   
             
             
             else:
@@ -96,16 +121,10 @@ class Visitast(ast.NodeVisitor):
                 line_no = self.scope_dict_stack[0] 
                 out_loop = self.output_loop_dicts[line_no]  
                 
-                left_dict = out_loop[0]
-                right_dict = out_loop[1]
-            
-                
-#                 if (isinstance(node.ctx,ast.Store)):
-#                     left_dict[node.lineno].append(node.id)
-#                 elif(isinstance(node.ctx,ast.Load)):
-#                     right_dict[node.lineno].append(node.id)
-                
-                self.output_loop_dicts[line_no] = (left_dict,right_dict)
+                store_dict = out_loop[0]
+                load_dict = out_loop[1]
+               
+                self.output_loop_dicts[line_no] = (store_dict,load_dict)
                 
                 
                 
@@ -117,35 +136,53 @@ class Visitast(ast.NodeVisitor):
             
             out_func_dict =  self.output_func_dicts[func_lineno]
             
-            left_dict = out_func_dict[0]
-            right_dict = out_func_dict[1]
+            store_dict = out_func_dict[0]
+            load_dict = out_func_dict[1]
             
-            left_dict[node.lineno].append(node.arg)
+            store_dict[node.lineno].append(node.arg)
                 
-            self.output_func_dicts[func_lineno] = (left_dict,right_dict)
+            self.output_func_dicts[func_lineno] = (store_dict,load_dict)
       
             
         elif isinstance(node,(ast.FunctionDef)):
             
-            dict_loop_left  = defaultdict(list)
-            dict_loop_right = defaultdict(list)
+            ##
+            ## When function definition is appearing in AST then we keep track of it by appending the function name to stack
+            ##
+            ##
+            
+            dict_loop_store  = defaultdict(list)
+            dict_loop_load = defaultdict(list)
+            
             self.function_scope_dict_stack.append(node.name)
-            self.output_func_dicts[node.name] = (dict_loop_left,dict_loop_right)
+            self.output_func_dicts[node.name] = (dict_loop_store,dict_loop_load)
                           
         
         elif isinstance(node,(ast.For,ast.While)):
             
-            dict_loop_left  = defaultdict(list)
-            dict_loop_right = defaultdict(list)
+            ##
+            ## When loop definition is appearing in AST then we keep track of it by 
+            ## appending the lineno to scope stack
+            ##
+    
+            
+            
+            dict_loop_store  = defaultdict(list)
+            dict_loop_load = defaultdict(list)
             self.scope_dict_stack.append(node.lineno)
-            self.output_loop_dicts[node.lineno] = (dict_loop_left,dict_loop_right)
+            self.output_loop_dicts[node.lineno] = (dict_loop_store,dict_loop_load)
         
         elif isinstance(node,ast.If):
             
-            dict_loop_left  = defaultdict(list)
-            dict_loop_right = defaultdict(list)
+            ##
+            ## When If definition is appearing in AST then we keep track of it by 
+            ## appending the lineno to control flow stack
+            ##
+            
+            dict_loop_store  = defaultdict(list)
+            dict_loop_load = defaultdict(list)
             self.control_flow_stack.append(node.lineno)
-            self.output_control_flow_dicts[node.lineno] = (dict_loop_left,dict_loop_right) 
+            self.output_control_flow_dicts[node.lineno] = (dict_loop_store,dict_loop_load) 
         
         elif isinstance(node,(ast.Import,ast.ImportFrom)):
             self.import_block = True
@@ -153,17 +190,22 @@ class Visitast(ast.NodeVisitor):
     
         elif self.import_block == True:
             if node.asname != None:
-                self.line_dict_left[0].append(node.asname)
+                self.main_dict_store[0].append(node.asname)
             else:
-                self.line_dict_left[0].append(node.name)
+                self.main_dict_store[0].append(node.name)
                 
         
-        #if isinstance(node,ast.Call):           
-            
-        
-        
+        ##
+        ## Recursive call to visit the children of a particular node in AST
+        ##
         ast.NodeVisitor.generic_visit(self,node)
-            
+        
+        ##
+        ## IF - ELSEIF usage:
+        ##
+        ## When a particular node ( of type loop, control flow or function definition) is visited completely (all the children)
+        ## Pop out the top of stack so the program control shifts to the outer scope     
+        ##
         
         if isinstance(node,(ast.For,ast.While)):
             self.scope_dict_stack.pop()
@@ -178,11 +220,11 @@ class Visitast(ast.NodeVisitor):
             self.function_scope_dict_stack.pop()
         
     
-    def display_left_dict(self):
-        return self.line_dict_left
+    def display_store_dict(self):
+        return self.main_dict_store
     
-    def display_right_dict(self):
-        return self.line_dict_right
+    def display_load_dict(self):
+        return self.main_dict_load
     
     def display_loop_dictionaries(self):
         return self.output_loop_dicts
@@ -192,8 +234,8 @@ class Visitast(ast.NodeVisitor):
     
     def display_func_dictionaries(self):
         return self.output_func_dicts
-            
-            
+
+        
 class Vertex:
     def __init__(self,key):
         self.id = key
@@ -248,6 +290,11 @@ class Graph:
         return iter(self.vertList.values())    
 
 
+##
+## FOR TESTING ONLY
+##
+##
+
 def main():
     
     with open("D:/Workspace/PythonAST/src/example.py", "r") as source:
@@ -259,8 +306,8 @@ def main():
     
     vis = Visitast()
     vis.visit(tree)
-    print(vis.display_left_dict())
-    print(vis.display_right_dict())
+    print(vis.display_store_dict())
+    print(vis.display_load_dict())
     print(vis.display_loop_dictionaries())
     print("Func",vis.display_func_dictionaries())
     #for node in ast.walk(tree):
@@ -269,7 +316,7 @@ def main():
     
     g = Graph()
     
-    for key,value in vis.display_left_dict().items():
+    for key,value in vis.display_store_dict().items():
         g.addVertex(key)
     
     for key,value in vis.display_loop_dictionaries().items():
@@ -286,7 +333,7 @@ def main():
     
     inverted_left_dict = defaultdict(list)
      
-    for k, v in vis.display_left_dict().items():
+    for k, v in vis.display_store_dict().items():
             for elem in v:
                 inverted_left_dict[elem].append(k)
         
@@ -297,7 +344,7 @@ def main():
     
     print("D2",inverted_left_dict)
      
-    for key,value in vis.display_right_dict().items():
+    for key,value in vis.display_store_dict().items():
             for j in value:
                 key_left = inverted_left_dict[j]
                 key_left.sort(reverse = True)
