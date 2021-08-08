@@ -194,93 +194,6 @@ def pickle_read_dependency(infile):
     
     infile.close()
 
-
-##
-## Not used.
-##
-
-def calc_input_provenance(source):
-    
-    vis = Visitast()        
-    
-    in_built_functions = ['print','int','float','min','udiff','input','len','NotImplementedError','max','ValueError','round','nop','sigmoid','logic_gate','test','open','sum','list','collections.defaultdict']
-        
-    removal_list = ['%matplotlib','notebook','inline']
-    
-    tree = ast.parse(source)
-    vis.visit(tree)
-    
-    main_flow_left_dict = vis.display_left_dict()
-    
-    inverted_left_dict = defaultdict(list)
-                
-    input_provenance_variable = list()            
-            
-    for k, v in main_flow_left_dict.items():
-        for elem in v:
-            inverted_left_dict[elem].append(k)
-    
-    
-    for key,value in vis.display_right_dict().items():
-        
-        for j in value:    
-                if j not in inverted_left_dict:  
-                    ## Suggesting that the variable was not defined or declared in the current cell
-                    input_provenance_variable.append(j)
-                    
-    
-    for key_line,dict_loop in vis.display_loop_dictionaries().items():
-                    
-        dict_left = dict_loop[0]
-        dict_right = dict_loop[1]                
-                    
-        inverted_loop_left_dict  = defaultdict(list) 
-        for k, v in dict_left.items():                
-            for elem in v:
-                inverted_loop_left_dict[elem].append(k)
-                    
-        for key,value in dict_right.items():
-            for j in value:    
-                if (j not in inverted_loop_left_dict) and (j not in inverted_left_dict):
-                    input_provenance_variable.append(j)
-                                
-    
-    for key_line,dict_loop in vis.display_func_dictionaries().items():
-                    
-        dict_left_func = dict_loop[0]
-        dict_right_func = dict_loop[1]                
-                    
-        inverted_func_left_dict  = defaultdict(list) 
-        for k, v in dict_left_func.items():
-            for elem in v:
-                inverted_func_left_dict[elem].append(k)                    
-        
-        for key,value in dict_right_func.items():            
-            for j in value:
-                if (j not in inverted_func_left_dict) and (j not in inverted_left_dict):
-                    input_provenance_variable.append(j)
-    
-    
-    for key_line,dict_loop in vis.display_control_flow_dictionaries().items():
-                    
-        dict_left_control = dict_loop[0]
-        dict_right_control = dict_loop[1]                
-                    
-        inverted_control_left_dict  = defaultdict(list) 
-        for k, v in dict_left_control.items():
-            for elem in v:
-                inverted_control_left_dict[elem].append(k)
-        
-        for key,value in dict_right_control.items():            
-            for j in value:
-                if (j not in inverted_control_left_dict) and (j not in inverted_left_dict):
-                    input_provenance_variable.append(j)    
-
-    print(input_provenance_variable)
-    
-
-
-
 ##
 ## The following code inside main function parses the jupyter notebook and generates the dependency graph
 ##
@@ -302,8 +215,7 @@ def parse_notebook(out):
     
     input_provenance_variable = {} 
     
-    
-    
+        
     for cell in out.cells:
         if cell.cell_type == 'code':
             input_provenance_variable[cell_execution_count_manual] = []
@@ -314,23 +226,15 @@ def parse_notebook(out):
             for word in removal_list:
                 cell.source = cell.source.replace(word, "")
             
-            
+            ##
+            ##      
             tree = ast.parse(cell.source)
             vis.visit(tree)
         
-            
-            #print("Control Flow Assignments",control_flow_dict.items())
-            
 
-            if len(vis.display_left_dict()) != 0:
+            if len(vis.display_store_dict()) != 0:        
                 
-                print("Right dict",vis.display_right_dict())
-                print("Left dict",vis.display_left_dict())
-                print("function Dict",vis.display_func_dictionaries())
-                print("Loop dictionary",vis.display_loop_dictionaries())
-                
-                
-                for key,value in vis.display_left_dict().items():
+                for key,value in vis.display_store_dict().items():
                                  
                     for j in value:
                             
@@ -343,27 +247,28 @@ def parse_notebook(out):
                 
             
         
-                left_dict = vis.display_left_dict()
-                inverted_left_dict = defaultdict(list)
+                store_dict = vis.display_store_dict()
+                inverted_store_dict = defaultdict(list)
                 
                 
             
-                for k, v in vis.display_left_dict().items():
+                for k, v in vis.display_store_dict().items():
                     for elem in v:
-                        inverted_left_dict[elem].append(k)
+                        inverted_store_dict[elem].append(k)
+                        
                 
                 
-                for key,value in vis.display_right_dict().items():
+                for key,value in vis.display_load_dict().items():
                     
                     for j in value:
                         
-                        key_left_dict = []
-                        if j in inverted_left_dict: 
-                            key_left_dict = inverted_left_dict[j]
+                        key_store_dict = []
+                        if j in inverted_store_dict: 
+                            key_store_dict = inverted_store_dict[j]
                         
                             isOrphan = False
         
-                            for elem in key_left_dict:
+                            for elem in key_store_dict:
                                 if key <= elem:
                                 ##
                                 ## The element was accessed before it was assigned. 
@@ -371,10 +276,10 @@ def parse_notebook(out):
                                 ##
                                     isOrphan = True
                                     break
-                        #print("Key,Key_left",key,key_left_dict,isOrphan)    
-                        #print(j,left_dict.values(),isOrphan)
+                        #print("Key,Key_left",key,key_store_dict,isOrphan)    
+                        #print(j,store_dict.values(),isOrphan)
                         
-                        if ((j not in left_dict.values() or isOrphan == True) and (j not in in_built_functions)):
+                        if ((j not in store_dict.values() or isOrphan == True) and (j not in in_built_functions)):
                             
                             if j not in input_provenance_variable[cell_execution_count_manual]:
                                 input_provenance_variable[cell_execution_count_manual].append(j)
@@ -399,13 +304,10 @@ def parse_notebook(out):
                                         else:
                                             break
                             
-                            
-                            
-                            
-                                    
+    
                         else:
     
-                            for elem in key_left_dict:
+                            for elem in key_store_dict:
                                 if elem != key: 
                                     #print((cell.execution_count,elem),(cell.execution_count,key),j)
                                     g.addEdge((cell_execution_count_manual,elem),(cell_execution_count_manual,key),j)
@@ -436,27 +338,27 @@ def parse_notebook(out):
                              
                 for key_line,dict_loop in vis.display_func_dictionaries().items():
                     
-                    dict_left_func = dict_loop[0]
-                    dict_right_func = dict_loop[1]                
+                    dict_store_func = dict_loop[0]
+                    dict_load_func = dict_loop[1]                
                     
-                    inverted_func_left_dict  = defaultdict(list) 
-                    for k, v in dict_left_func.items():
+                    inverted_func_store_dict  = defaultdict(list) 
+                    for k, v in dict_store_func.items():
                         for elem in v:
-                            inverted_func_left_dict[elem].append(k)
+                            inverted_func_store_dict[elem].append(k)
                     
                                 
-                    for key,value in dict_right_func.items():
+                    for key,value in dict_load_func.items():
                         #print("Value",value)
                         for j in value:
                             #print("j",j)
-                            key_left = inverted_func_left_dict.get(j, None)
+                            key_left = inverted_func_store_dict.get(j, None)
                             if key_left is not None:
-                                for key_left_dict in key_left:
-                                    if key_left_dict < key: 
-                                        g.addEdge((cell_execution_count_manual,key_left_dict),(cell_execution_count_manual,key),j)
+                                for key_store_dict in key_left:
+                                    if key_store_dict < key: 
+                                        g.addEdge((cell_execution_count_manual,key_store_dict),(cell_execution_count_manual,key),j)
                             
                             elif key_left is None:
-                                key_left_main = inverted_left_dict.get(j,None)
+                                key_left_main = inverted_store_dict.get(j,None)
                                 
                                 if j not in input_provenance_variable[cell_execution_count_manual]:
                                     input_provenance_variable[cell_execution_count_manual].append(j)
@@ -494,11 +396,11 @@ def parse_notebook(out):
                             
                 for key_line,dict_loop in vis.display_loop_dictionaries().items():
                     
-                    dict_left = dict_loop[0]
-                    dict_right = dict_loop[1]                
+                    dict_store = dict_loop[0]
+                    dict_load = dict_loop[1]                
                     
-                    inverted_loop_left_dict  = defaultdict(list) 
-                    for k, v in dict_left.items():
+                    inverted_loop_store_dict  = defaultdict(list) 
+                    for k, v in dict_store.items():
                         for j in v:
                             
                             if j not in cell_dict: 
@@ -509,22 +411,22 @@ def parse_notebook(out):
                         cell_dict[j].sort(reverse = True)
                     
                         for elem in v:
-                            inverted_loop_left_dict[elem].append(k)
+                            inverted_loop_store_dict[elem].append(k)
             
             
-                    for key,value in dict_right.items():
+                    for key,value in dict_load.items():
                         print("Value",value)
                         for j in value: #and (j not in in_built_functions):
                             #print("j",j)
-                            key_left = inverted_loop_left_dict.get(j, None)
+                            key_left = inverted_loop_store_dict.get(j, None)
                             if key_left is not None:
-                                for key_left_dict in key_left:
-                                    if key_left_dict < key: 
-                                        g.addEdge((cell_execution_count_manual,key_left_dict),(cell_execution_count_manual,key),j)
+                                for key_store_dict in key_left:
+                                    if key_store_dict < key: 
+                                        g.addEdge((cell_execution_count_manual,key_store_dict),(cell_execution_count_manual,key),j)
                             
                             elif key_left is None:
                                 if j not in input_provenance_variable[cell_execution_count_manual]:
-                                    key_left_main = inverted_left_dict.get(j,None)
+                                    key_left_main = inverted_store_dict.get(j,None)
                                 input_provenance_variable[cell_execution_count_manual].append(j)
                                 if key_left_main: 
                                     for k in key_left_main:
@@ -536,27 +438,27 @@ def parse_notebook(out):
 
                 for key_line,dict_loop in vis.display_control_flow_dictionaries().items():
                     
-                    dict_left_control = dict_loop[0]
-                    dict_right_control = dict_loop[1]                
+                    dict_store_control = dict_loop[0]
+                    dict_load_control = dict_loop[1]                
                     
-                    inverted_control_left_dict  = defaultdict(list) 
-                    for k, v in dict_left_control.items():
+                    inverted_control_store_dict  = defaultdict(list) 
+                    for k, v in dict_store_control.items():
                         for elem in v:
-                            inverted_control_left_dict[elem].append(k)
+                            inverted_control_store_dict[elem].append(k)
             
             
-                    for key,value in dict_right_control.items():
+                    for key,value in dict_load_control.items():
                         #print("Value",value)
                         for j in value:
                             #print("j",j)
-                            key_left = inverted_control_left_dict.get(j, None)
+                            key_left = inverted_control_store_dict.get(j, None)
                             if key_left is not None:
-                                for key_left_dict in key_left:
-                                    if key_left_dict < key: 
-                                        g.addEdge((cell_execution_count_manual,key_left_dict),(cell_execution_count_manual,key),j)
+                                for key_store_dict in key_left:
+                                    if key_store_dict < key: 
+                                        g.addEdge((cell_execution_count_manual,key_store_dict),(cell_execution_count_manual,key),j)
                             
                             elif key_left is None:
-                                key_left_main = inverted_left_dict.get(j,None)
+                                key_left_main = inverted_store_dict.get(j,None)
                                 if j not in input_provenance_variable[cell_execution_count_manual]:
                                     input_provenance_variable[cell_execution_count_manual].append(j)
                                 if key_left_main: 
@@ -569,8 +471,8 @@ def parse_notebook(out):
             cell_execution_count_manual += 1 
                                         
             #print(cells.source)
-            #print(vis.display_left_dict())
-            #print(vis.display_right_dict())
+            #print(vis.display_store_dict())
+            #print(vis.display_load_dict())
             #print(cell_dict)
     
     print("Input provenance details",input_provenance_variable)    
@@ -582,7 +484,7 @@ def parse_notebook(out):
     return calc_degree_parallelism(g)    
 
 ##
-## Ignore - WAs used for development and testing
+## Ignore - Was used for development and testing
 ##
 
 def main():
