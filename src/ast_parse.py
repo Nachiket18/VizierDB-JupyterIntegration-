@@ -3,6 +3,7 @@ Created on 11-May-2021
 @author: Nachiket Deo
 '''
 
+
 import ast
 from collections import deque,defaultdict
 from builtins import isinstance
@@ -27,9 +28,11 @@ class Visitast(ast.NodeVisitor):
         self.main_dict_load = defaultdict(list)
         self.scope_dict_stack = deque()
         self.control_flow_stack = deque()  
+        self.all_stack = deque()
         self.output_loop_dicts = defaultdict(list) 
         self.output_control_flow_dicts = defaultdict(list)
         self.output_func_dicts = defaultdict(list)
+        self.output_class_dicts = defaultdict(list)
         self.import_block = False
         self.function_scope_dict_stack = deque()
         
@@ -43,13 +46,17 @@ class Visitast(ast.NodeVisitor):
                 ## The variables captured in main program flow
                 ##
                 
+                #x = 2
+
+                #y = x + 3
+
                 if (isinstance(node.ctx,ast.Store)):
                     self.main_dict_store[node.lineno].append(node.id)
                 
                 elif(isinstance(node.ctx,ast.Load)):
                     self.main_dict_load[node.lineno].append(node.id)    
             
-            elif self.scope_dict_stack:
+            elif self.scope_dict_stack and (self.scope_dict_stack[0] == self.all_stack[0]) :
                 
                 ##
                 ## Variables in a loop are captured
@@ -70,12 +77,12 @@ class Visitast(ast.NodeVisitor):
                 
                 self.output_loop_dicts[line_no_control] = (store_dict_scope,load_dict_scope)
             
-            elif self.control_flow_stack:
+            elif self.control_flow_stack and (self.control_flow_stack[0] == self.all_stack[0]):
                 
                 ##
                 ## Variables in control flow are captured
                 ##
-                
+
                 line_no_control = self.control_flow_stack[0]
                 
                 output_control = self.output_control_flow_dicts[line_no_control]
@@ -91,9 +98,7 @@ class Visitast(ast.NodeVisitor):
                 
                 self.output_control_flow_dicts[line_no_control] = (store_dict_control,load_dict_control)
                   
-                
-                    
-            elif self.function_scope_dict_stack:
+            elif self.function_scope_dict_stack and (self.function_scope_dict_stack[0] == self.all_stack[0]):
                 
                 ##
                 ## Variables present in function definition are captured
@@ -126,9 +131,7 @@ class Visitast(ast.NodeVisitor):
                
                 self.output_loop_dicts[line_no] = (store_dict,load_dict)
                 
-                
-                
-           
+                   
         elif isinstance(node,(ast.arg)) and self.function_scope_dict_stack:
             
     
@@ -149,29 +152,28 @@ class Visitast(ast.NodeVisitor):
             ##
             ## When function definition is appearing in AST then we keep track of it by appending the function name to stack
             ##
-            ##
             
             dict_loop_store  = defaultdict(list)
             dict_loop_load = defaultdict(list)
             
             self.function_scope_dict_stack.append(node.name)
             self.output_func_dicts[node.name] = (dict_loop_store,dict_loop_load)
-                          
-        
+
+            self.all_stack.append(node.name)
+
         elif isinstance(node,(ast.For,ast.While)):
             
             ##
             ## When loop definition is appearing in AST then we keep track of it by 
             ## appending the lineno to scope stack
             ##
-    
-            
-            
+
             dict_loop_store  = defaultdict(list)
             dict_loop_load = defaultdict(list)
             self.scope_dict_stack.append(node.lineno)
             self.output_loop_dicts[node.lineno] = (dict_loop_store,dict_loop_load)
-        
+            self.all_stack.append(node.lineno)
+
         elif isinstance(node,ast.If):
             
             ##
@@ -183,10 +185,10 @@ class Visitast(ast.NodeVisitor):
             dict_loop_load = defaultdict(list)
             self.control_flow_stack.append(node.lineno)
             self.output_control_flow_dicts[node.lineno] = (dict_loop_store,dict_loop_load) 
-        
+            self.all_stack.append(node.lineno)
+
         elif isinstance(node,(ast.Import,ast.ImportFrom)):
             self.import_block = True
-        
     
         elif self.import_block == True:
             if node.asname != None:
@@ -209,16 +211,18 @@ class Visitast(ast.NodeVisitor):
         
         if isinstance(node,(ast.For,ast.While)):
             self.scope_dict_stack.pop()
-        
+            self.all_stack.pop()
+
         elif isinstance(node,(ast.If)):
             self.control_flow_stack.pop()
-        
+            self.all_stack.pop()
+
         elif isinstance(node,(ast.Import,ast.ImportFrom)):
             self.import_block = False
         
         elif isinstance(node,(ast.FunctionDef)):
             self.function_scope_dict_stack.pop()
-        
+            self.all_stack.pop()
     
     def display_store_dict(self):
         return self.main_dict_store
@@ -240,15 +244,22 @@ class Vertex:
     def __init__(self,key):
         self.id = key
         self.connectedTo = {}
+        self.backconnectedTo = {}
 
     def addNeighbor(self,nbr,dep_object = ''):
         self.connectedTo[nbr] = dep_object
+
+    def addBackNeighbor(self,nbr,dep_object = ''):
+        self.backconnectedTo[nbr] = dep_object
 
     def __str__(self):
         return str(self.id) + ' connectedTo: ' + str([x.id for x in self.connectedTo])
 
     def getConnections(self):
         return self.connectedTo.keys()
+
+    def getBackConnections(self):
+        return self.backconnectedTo.keys()
 
     def getId(self):
         return self.id
@@ -282,6 +293,8 @@ class Graph:
         if t not in self.vertList:
             nv = self.addVertex(t)
         self.vertList[f].addNeighbor(self.vertList[t], dep_object)
+        self.vertList[t].addBackNeighbor(self.vertList[f],dep_object)
+
 
     def getVertices(self):
         return self.vertList.keys()
@@ -295,115 +308,115 @@ class Graph:
 ##
 ##
 
-def main():
+# def main():
     
-    with open("D:/Workspace/PythonAST/src/example.py", "r") as source:
-        tree = ast.parse(source.read())
+#     with open("D:/Workspace/PythonAST/src/example.py", "r") as source:
+#         tree = ast.parse(source.read())
     
-    #tree = ast.parse("x = 1; y=1; y=y+2; x = y+5")
+#     #tree = ast.parse("x = 1; y=1; y=y+2; x = y+5")
     
-    print(ast.dump(tree, indent=4))
+#     print(ast.dump(tree, indent=4))
     
-    vis = Visitast()
-    vis.visit(tree)
-    print(vis.display_store_dict())
-    print(vis.display_load_dict())
-    print(vis.display_loop_dictionaries())
-    print("Func",vis.display_func_dictionaries())
-    #for node in ast.walk(tree):
-    #    line_dict = {}
-    #    print(node.__class__.__name__)
+#     vis = Visitast()
+#     vis.visit(tree)
+#     print(vis.display_store_dict())
+#     print(vis.display_load_dict())
+#     print(vis.display_loop_dictionaries())
+#     print("Func",vis.display_func_dictionaries())
+#     #for node in ast.walk(tree):
+#     #    line_dict = {}
+#     #    print(node.__class__.__name__)
     
-    g = Graph()
+#     g = Graph()
     
-    for key,value in vis.display_store_dict().items():
-        g.addVertex(key)
+#     for key,value in vis.display_store_dict().items():
+#         g.addVertex(key)
     
-    for key,value in vis.display_loop_dictionaries().items():
-        dict_left = value[0]
-        dict_right = value[1]
-        for key,value in dict_left.items():
-            g.addVertex(key)
+#     for key,value in vis.display_loop_dictionaries().items():
+#         dict_left = value[0]
+#         dict_right = value[1]
+#         for key,value in dict_left.items():
+#             g.addVertex(key)
             
-        for key,value in dict_right.items():
-            if g.getVertex(key) == None:
-                g.addVertex(key)
+#         for key,value in dict_right.items():
+#             if g.getVertex(key) == None:
+#                 g.addVertex(key)
                 
-    dependency_list = defaultdict(list)
+#     dependency_list = defaultdict(list)
     
-    inverted_left_dict = defaultdict(list)
+#     inverted_left_dict = defaultdict(list)
      
-    for k, v in vis.display_store_dict().items():
-            for elem in v:
-                inverted_left_dict[elem].append(k)
+#     for k, v in vis.display_store_dict().items():
+#             for elem in v:
+#                 inverted_left_dict[elem].append(k)
         
-#     for key,value in vis.line_dict_right.items():
-#         for key_1,value_1 in vis.line_dict_left.items():
-#             if value == value_1 and key_1 < key:
-#                 dependency_list[key_1] = (key,value)
+# #     for key,value in vis.line_dict_right.items():
+# #         for key_1,value_1 in vis.line_dict_left.items():
+# #             if value == value_1 and key_1 < key:
+# #                 dependency_list[key_1] = (key,value)
     
-    print("D2",inverted_left_dict)
+#     print("D2",inverted_left_dict)
      
-    for key,value in vis.display_store_dict().items():
-            for j in value:
-                key_left = inverted_left_dict[j]
-                key_left.sort(reverse = True)
-                if isinstance(key_left,list):
-                    for k in key_left:
-                        if k < key:
-                            dependency_list[k].append((key,j))
-                            break
-    #print(dependency_list) 
-    for key_line,dict_loop in vis.display_loop_dictionaries().items():
+#     for key,value in vis.display_store_dict().items():
+#             for j in value:
+#                 key_left = inverted_left_dict[j]
+#                 key_left.sort(reverse = True)
+#                 if isinstance(key_left,list):
+#                     for k in key_left:
+#                         if k < key:
+#                             dependency_list[k].append((key,j))
+#                             break
+#     #print(dependency_list) 
+#     for key_line,dict_loop in vis.display_loop_dictionaries().items():
              
-            dict_left = dict_loop[0]
-            dict_right = dict_loop[1]
+#             dict_left = dict_loop[0]
+#             dict_right = dict_loop[1]
             
-            d3 = defaultdict(list) 
-            for k, v in dict_left.items():
-                for elem in v:
-                    d3[elem].append(k)
+#             d3 = defaultdict(list) 
+#             for k, v in dict_left.items():
+#                 for elem in v:
+#                     d3[elem].append(k)
         
             
-            print("d3",d3)
-            for key,value in dict_right.items():
-                    print("Value",value)
-                    for j in value:
-                        print("j",j)
-                        key_left = d3.get(j, None)
-                        if key_left is not None:
-                            for key_left_dict in key_left:
-                                if key_left_dict < key: 
-                                    dependency_list[key_left_dict].append((key,j))
+#             print("d3",d3)
+#             for key,value in dict_right.items():
+#                     print("Value",value)
+#                     for j in value:
+#                         print("j",j)
+#                         key_left = d3.get(j, None)
+#                         if key_left is not None:
+#                             for key_left_dict in key_left:
+#                                 if key_left_dict < key: 
+#                                     dependency_list[key_left_dict].append((key,j))
                         
-                        elif key_left is None:
-                            key_left_main = inverted_left_dict.get(j,None)
-                            print("Key",key_left_main,key_left)
-                            if key_left_main: 
-                                for k in key_left_main:
-                                    if k < key:
-                                        dependency_list[k].append((key,j))
+#                         elif key_left is None:
+#                             key_left_main = inverted_left_dict.get(j,None)
+#                             print("Key",key_left_main,key_left)
+#                             if key_left_main: 
+#                                 for k in key_left_main:
+#                                     if k < key:
+#                                         dependency_list[k].append((key,j))
                                     
                     
     
     
     
-    for key,value in dependency_list.items():
-        for data in value:
-            elem_1,elem_2 = data
-            g.addEdge(key,elem_1,elem_2) 
+#     for key,value in dependency_list.items():
+#         for data in value:
+#             elem_1,elem_2 = data
+#             g.addEdge(key,elem_1,elem_2) 
     
     
-    #print(dependency_list)
+#     #print(dependency_list)
      
-    for v in g:
-        if not v.getConnections():
-            print(v.getId())
-        else:
-            for nbr in v.getConnections():
-                print(v.getId(),"->",nbr.getId(),"on",v.getWeight(nbr))
+#     for v in g:
+#         if not v.getConnections():
+#             print(v.getId())
+#         else:
+#             for nbr in v.getConnections():
+#                 print(v.getId(),"->",nbr.getId(),"on",v.getWeight(nbr))
             
         
 
-if __name__ == '__main__':
-    main() 
+# if __name__ == '__main__':
+#     main() 

@@ -11,11 +11,11 @@ class export_command:
     
     def __init__(self,Id,packageId,commandId,arguments,revisionId,properties):
         
-        self.Id = Id ,
-        self.packageId = packageId ,
-        self.commandId = commandId ,
-        self.arguments = arguments ,
-        self.revisionOfId = revisionId ,
+        self.Id = Id 
+        self.packageId = packageId 
+        self.commandId = commandId 
+        self.arguments = arguments 
+        self.revisionOfId = revisionId 
         self.properties = properties
     
     def process_package_command(self,package,command):
@@ -47,10 +47,10 @@ class export_command:
         command_out = dict()
         
         command_out['id'] = self.Id
-        command_out['packageId'] = self.packageId,
-        command_out['commandId']= self.commandId,
-        command_out['arguments'] = self.arguments,
-        command_out['revisionId'] = self.revisionOfId,
+        command_out['packageId'] = self.packageId
+        command_out['commandId']= self.commandId
+        command_out['arguments'] = self.arguments
+        command_out['revisionId'] = self.revisionOfId
         command_out['properties'] = self.properties 
         
         #print(command_out)

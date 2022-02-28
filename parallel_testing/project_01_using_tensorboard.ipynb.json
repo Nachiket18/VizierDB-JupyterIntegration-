@@ -1,0 +1,461 @@
+{
+    "properties": [
+        {
+            "key": "name",
+            "value": "01_using_tensorboard.ipynb"
+        }
+    ],
+    "defaultBranch": "1",
+    "files": [],
+    "modules": {
+        "1": {
+            "id": "1",
+            "state": 4,
+            "command": {
+                "id": "1",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "import os\nimport io\nimport time\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport tensorflow as tf\nvizierdb['tf'] = tf\nvizierdb['time'] = time\nvizierdb['np'] = np\nvizierdb['plt'] = plt\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "tf",
+                        "time",
+                        "np",
+                        "plt"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611127",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611127"
+            }
+        },
+        "2": {
+            "id": "2",
+            "state": 4,
+            "command": {
+                "id": "2",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\nsess = tf.Session()\nvizierdb['sess'] = sess\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf"
+                    ],
+                    "output_provenance": [
+                        "sess"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611168",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611168"
+            }
+        },
+        "3": {
+            "id": "3",
+            "state": 4,
+            "command": {
+                "id": "3",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\n# Create a visualizer object\nsummary_writer = tf.summary.FileWriter('tensorboard', tf.get_default_graph())\n\n# Create tensorboard folder if not exists\nif not os.path.exists('tensorboard'):\n    os.makedirs('tensorboard')\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611194",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611194"
+            }
+        },
+        "4": {
+            "id": "4",
+            "state": 4,
+            "command": {
+                "id": "4",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "time = vizierdb['time']\n# Wait a few seconds for user to run tensorboard commands\ntime.sleep(5)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "time"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611218",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611218"
+            }
+        },
+        "5": {
+            "id": "5",
+            "state": 4,
+            "command": {
+                "id": "5",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "batch_size = 50\ngenerations = 100\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611237",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611237"
+            }
+        },
+        "6": {
+            "id": "6",
+            "state": 4,
+            "command": {
+                "id": "6",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\n# Create sample input data\nx_data = np.arange(1000)/10.\ntrue_slope = 2.\ny_data = x_data * true_slope + np.random.normal(loc=0.0, scale=25, size=1000)\n\n# Split into train/test\ntrain_ix = np.random.choice(len(x_data), size=int(len(x_data)*0.9), replace=False)\ntest_ix = np.setdiff1d(np.arange(1000), train_ix)\nx_data_train, y_data_train = x_data[train_ix], y_data[train_ix]\nx_data_test, y_data_test = x_data[test_ix], y_data[test_ix]\nvizierdb['y_data'] = y_data"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np"
+                    ],
+                    "output_provenance": [
+                        "y_data"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611263",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611263"
+            }
+        },
+        "7": {
+            "id": "7",
+            "state": 4,
+            "command": {
+                "id": "7",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\n# Declare placeholders\nx_graph_input = tf.placeholder(tf.float32, [None])\ny_graph_input = tf.placeholder(tf.float32, [None])\n\n# Declare model variables\nm = tf.Variable(tf.random_normal([1], dtype=tf.float32), name='Slope')\n\n# Declare model\noutput = tf.multiply(m, x_graph_input, name='Batch_Multiplication')\n\n# Declare loss function (L1)\nresiduals = output - y_graph_input\nl1_loss = tf.reduce_mean(tf.abs(residuals), name=\"L1_Loss\")\n\n# Declare optimization function\nmy_optim = tf.train.GradientDescentOptimizer(0.01)\ntrain_step = my_optim.minimize(l1_loss)\nvizierdb['m'] = m\nvizierdb['l1_loss'] = l1_loss"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf"
+                    ],
+                    "output_provenance": [
+                        "m",
+                        "l1_loss"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611293",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611293"
+            }
+        },
+        "8": {
+            "id": "8",
+            "state": 4,
+            "command": {
+                "id": "8",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\nm = vizierdb['m']\n# Visualize a scalar\nwith tf.name_scope('Slope_Estimate'):\n    tf.summary.scalar('Slope_Estimate', tf.squeeze(m))\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf",
+                        "m"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611319",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611319"
+            }
+        },
+        "9": {
+            "id": "9",
+            "state": 4,
+            "command": {
+                "id": "9",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\nl1_loss = vizierdb['l1_loss']\n# Visualize a histogram (errors)\nwith tf.name_scope('Loss_and_Residuals'):\n    tf.summary.histogram('Histogram_Errors', l1_loss)\n    tf.summary.histogram('Histogram_Residuals', residuals)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf",
+                        "l1_loss"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611352",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611352"
+            }
+        },
+        "10": {
+            "id": "10",
+            "state": 4,
+            "command": {
+                "id": "10",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\n# Declare summary merging operation\nsummary_op = tf.summary.merge_all()\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611384",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611384"
+            }
+        },
+        "11": {
+            "id": "11",
+            "state": 4,
+            "command": {
+                "id": "11",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\nsess = vizierdb['sess']\n# Initialize Variables\ninit = tf.global_variables_initializer()\nsess.run(init)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf",
+                        "sess"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611418",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611418"
+            }
+        },
+        "12": {
+            "id": "12",
+            "state": 4,
+            "command": {
+                "id": "12",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "for i in range(generations):\n    batch_indices = np.random.choice(len(x_data_train), size=batch_size)\n    x_batch = x_data_train[batch_indices]\n    y_batch = y_data_train[batch_indices]\n    _, train_loss, summary = sess.run([train_step, l1_loss, summary_op],\n                             feed_dict={x_graph_input: x_batch,\n                                        y_graph_input: y_batch})\n    \n    test_loss, test_resids = sess.run([l1_loss, residuals], feed_dict={x_graph_input: x_data_test,\n                                                                       y_graph_input: y_data_test})\n    \n    if (i+1)%10==0:\n        print('Generation {} of {}. Train Loss: {:.3}, Test Loss: {:.3}.'.format(i+1, generations, train_loss, test_loss))\n\n    log_writer = tf.summary.FileWriter('tensorboard')\n    log_writer.add_summary(summary, i)\n    time.sleep(0.5)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611444",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611444"
+            }
+        },
+        "13": {
+            "id": "13",
+            "state": 4,
+            "command": {
+                "id": "13",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "plt = vizierdb['plt']\ny_data = vizierdb['y_data']\n#Create a function to save a protobuf bytes version of the graph\ndef gen_linear_plot(slope):\n    linear_prediction = x_data * slope\n    plt.plot(x_data, y_data, 'b.', label='data')\n    plt.plot(x_data, linear_prediction, 'r-', linewidth=3, label='predicted line')\n    plt.legend(loc='upper left')\n    buf = io.BytesIO()\n    plt.savefig(buf, format='png')\n    buf.seek(0)\n    return(buf)\nvizierdb['gen_linear_plot'] = gen_linear_plot"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "plt",
+                        "y_data"
+                    ],
+                    "output_provenance": [
+                        "gen_linear_plot"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611479",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611479"
+            }
+        },
+        "14": {
+            "id": "14",
+            "state": 4,
+            "command": {
+                "id": "14",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "tf = vizierdb['tf']\nsess = vizierdb['sess']\nm = vizierdb['m']\ngen_linear_plot = vizierdb['gen_linear_plot']\n# Add image to tensorboard (plot the linear fit!)\nslope = sess.run(m)\nplot_buf = gen_linear_plot(slope[0])\n\n# Convert PNG buffer to TF image\nimage = tf.image.decode_png(plot_buf.getvalue(), channels=4)\n\n# Add the batch dimension\nimage = tf.expand_dims(image, 0)\n\n# Add image summary\nimage_summary_op = tf.summary.image(\"Linear_Plot\", image)\nimage_summary = sess.run(image_summary_op)\nlog_writer.add_summary(image_summary, i)\nlog_writer.close()\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "tf",
+                        "sess",
+                        "m",
+                        "gen_linear_plot"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:14:16.611509",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:14:16.611509"
+            }
+        }
+    },
+    "branches": [
+        {
+            "id": "1",
+            "createdAt": "2022-02-28T06:14:16.611552",
+            "lastModifiedAt": "2022-02-28T06:14:16.611557",
+            "isDefault": true,
+            "properties": [
+                {
+                    "key": "name",
+                    "value": "01_using_tensorboard.ipynb"
+                }
+            ],
+            "workflows": [
+                {
+                    "id": "1",
+                    "createdAt": "2022-02-28T06:14:16.611526",
+                    "action": "create",
+                    "packageId": "null",
+                    "commandId": "null",
+                    "actionModule": "null",
+                    "modules": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12",
+                        "13",
+                        "14"
+                    ]
+                }
+            ]
+        }
+    ],
+    "createdAt": "2022-02-28T12:14:16.611509",
+    "lastModifiedAt": "2022-02-28T12:14:16.611509"
+}

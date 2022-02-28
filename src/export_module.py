@@ -15,11 +15,11 @@ class export_module:
         
         module = dict(id= 0,state = 0,command = 0,text= {},timestamps= {})
         module['id'] = Id
-        module['state'] = state,
-        module['command'] = command,
-        module['text'] = text,
+        module['state'] = state
+        module['command'] = command
+        module['text'] = text
         module['timestamps'] = timestamps
-        
+
         return module
         
         
@@ -29,4 +29,3 @@ class export_module:
         
         
         
-

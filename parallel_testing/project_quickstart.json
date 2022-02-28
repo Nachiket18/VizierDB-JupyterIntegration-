@@ -1,0 +1,305 @@
+{
+    "properties": [
+        {
+            "key": "name",
+            "value": "quickstart.ipynb"
+        }
+    ],
+    "defaultBranch": "1",
+    "files": [],
+    "modules": {
+        "1": {
+            "id": "1",
+            "state": 4,
+            "command": {
+                "id": "1",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "from bokeh.plotting import figure \nfrom bokeh.io import output_, show\nvizierdb['output_'] = output_\nvizierdb['show'] = show\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "output_",
+                        "show"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666173",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666173"
+            }
+        },
+        "2": {
+            "id": "2",
+            "state": 4,
+            "command": {
+                "id": "2",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "output_ = vizierdb['output_']\noutput_()\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "output_"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666213",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666213"
+            }
+        },
+        "3": {
+            "id": "3",
+            "state": 4,
+            "command": {
+                "id": "3",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "from numpy import cos, linspace\nx = linspace(-6, 6, 100)\ny = cos(x)\nvizierdb['y'] = y"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "y"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666239",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666239"
+            }
+        },
+        "4": {
+            "id": "4",
+            "state": 4,
+            "command": {
+                "id": "4",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "show = vizierdb['show']\ny = vizierdb['y']\np = figure(width=500, height=500)\np.circle(x, y, size=7, color=\"firebrick\", alpha=0.5)\nshow(p)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "show",
+                        "y"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666266",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666266"
+            }
+        },
+        "5": {
+            "id": "5",
+            "state": 4,
+            "command": {
+                "id": "5",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "from bokeh.sampledata.autompg import autompg\n\ngrouped = autompg.groupby(\"yr\")\nmpg = grouped[\"mpg\"]\navg = mpg.mean()\nstd = mpg.std()\nyears = list(grouped.groups.keys())\namerican = autompg[autompg[\"origin\"]==1]\njapanese = autompg[autompg[\"origin\"]==3]\nvizierdb['autompg'] = autompg\nvizierdb['japanese'] = japanese\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "autompg",
+                        "japanese"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666293",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666293"
+            }
+        },
+        "6": {
+            "id": "6",
+            "state": 4,
+            "command": {
+                "id": "6",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "show = vizierdb['show']\njapanese = vizierdb['japanese']\np = figure(title=\"MPG by Year (Japan and US)\")\n\np.vbar(x=years, bottom=avg-std, top=avg+std, width=0.8, \n       fill_alpha=0.2, line_color=None, legend=\"MPG 1 stddev\")\n\np.circle(x=japanese[\"yr\"], y=japanese[\"mpg\"], size=10, alpha=0.5,\n         color=\"red\", legend=\"Japanese\")\n\np.triangle(x=american[\"yr\"], y=american[\"mpg\"], size=10, alpha=0.3,\n           color=\"blue\", legend=\"American\")\n\np.legend.location = \"top_left\"\nshow(p)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "show",
+                        "japanese"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666320",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666320"
+            }
+        },
+        "7": {
+            "id": "7",
+            "state": 4,
+            "command": {
+                "id": "7",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "show = vizierdb['show']\nautompg = vizierdb['autompg']\nfrom bokeh.models import ColumnDataSource\nfrom bokeh.layouts import gridplot\n\nsource = ColumnDataSource(autompg)\n\noptions = dict(plot_width=300, plot_height=300,\n               tools=\"pan,wheel_zoom,box_zoom,box_select,lasso_select\")\n\np1 = figure(title=\"MPG by Year\", **options)\np1.circle(\"yr\", \"mpg\", color=\"blue\", source=source)\n\np2 = figure(title=\"HP vs. Displacement\", **options)\np2.circle(\"hp\", \"displ\", color=\"green\", source=source)\n\np3 = figure(title=\"MPG vs. Displacement\", **options)\np3.circle(\"mpg\", \"displ\", size=\"cyl\", line_color=\"red\", fill_color=None, source=source)\n\np = gridplot([[ p1, p2, p3]], toolbar_location=\"right\")\n\nshow(p)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "show",
+                        "autompg"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666347",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666347"
+            }
+        },
+        "8": {
+            "id": "8",
+            "state": 4,
+            "command": {
+                "id": "8",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "show = vizierdb['show']\njapanese = vizierdb['japanese']\nfrom bokeh.plotting import output_file\n\noutput_file(\"barplot.html\")\n\np = figure(title=\"MPG by Year (Japan and US)\")\n\np.vbar(x=years, bottom=avg-std, top=avg+std, width=0.8, \n       fill_alpha=0.2, line_color=None, legend=\"MPG 1 stddev\")\n\np.circle(x=japanese[\"yr\"], y=japanese[\"mpg\"], size=10, alpha=0.3,\n         color=\"red\", legend=\"Japanese\")\n\np.triangle(x=american[\"yr\"], y=american[\"mpg\"], size=10, alpha=0.3,\n           color=\"blue\", legend=\"American\")\n\np.legend.location = \"top_left\"\nshow(p)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "show",
+                        "japanese"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666374",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666374"
+            }
+        },
+        "9": {
+            "id": "9",
+            "state": 4,
+            "command": {
+                "id": "9",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:26:03.666395",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:26:03.666395"
+            }
+        }
+    },
+    "branches": [
+        {
+            "id": "1",
+            "createdAt": "2022-02-28T06:26:03.666433",
+            "lastModifiedAt": "2022-02-28T06:26:03.666438",
+            "isDefault": true,
+            "properties": [
+                {
+                    "key": "name",
+                    "value": "quickstart.ipynb"
+                }
+            ],
+            "workflows": [
+                {
+                    "id": "1",
+                    "createdAt": "2022-02-28T06:26:03.666409",
+                    "action": "create",
+                    "packageId": "null",
+                    "commandId": "null",
+                    "actionModule": "null",
+                    "modules": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+                    ]
+                }
+            ]
+        }
+    ],
+    "createdAt": "2022-02-28T12:26:03.666395",
+    "lastModifiedAt": "2022-02-28T12:26:03.666395"
+}

@@ -1,0 +1,336 @@
+{
+    "properties": [
+        {
+            "key": "name",
+            "value": "2_numpy_reshape.ipynb"
+        }
+    ],
+    "defaultBranch": "1",
+    "files": [],
+    "modules": {
+        "1": {
+            "id": "1",
+            "state": 4,
+            "command": {
+                "id": "1",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "import numpy as np\nvizierdb['np'] = np\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "np"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882141",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882141"
+            }
+        },
+        "2": {
+            "id": "2",
+            "state": 4,
+            "command": {
+                "id": "2",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = [[1,2,3,4], [1,2,5,8]]\nnp.array(test_matrix).shape\nvizierdb['test_matrix'] = test_matrix\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np"
+                    ],
+                    "output_provenance": [
+                        "test_matrix"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882182",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882182"
+            }
+        },
+        "3": {
+            "id": "3",
+            "state": 4,
+            "command": {
+                "id": "3",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\nnp.array(test_matrix).reshape(2,2,2)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882209",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882209"
+            }
+        },
+        "4": {
+            "id": "4",
+            "state": 4,
+            "command": {
+                "id": "4",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\ntest =np.array(test_matrix).reshape(8,)\ntest\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882234",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882234"
+            }
+        },
+        "5": {
+            "id": "5",
+            "state": 4,
+            "command": {
+                "id": "5",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "test.reshape(-1, 1)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882253",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882253"
+            }
+        },
+        "6": {
+            "id": "6",
+            "state": 4,
+            "command": {
+                "id": "6",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\nnp.array(test_matrix).reshape(2,4).shape\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882277",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882277"
+            }
+        },
+        "7": {
+            "id": "7",
+            "state": 4,
+            "command": {
+                "id": "7",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\nnp.array(test_matrix).reshape(2,-1).shape\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882302",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882302"
+            }
+        },
+        "8": {
+            "id": "8",
+            "state": 4,
+            "command": {
+                "id": "8",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\nnp.array(test_matrix).reshape(2,2,2)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882326",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882326"
+            }
+        },
+        "9": {
+            "id": "9",
+            "state": 4,
+            "command": {
+                "id": "9",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = vizierdb['test_matrix']\nnp.array(test_matrix).reshape(2,2,2).shape\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "test_matrix"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882351",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882351"
+            }
+        },
+        "10": {
+            "id": "10",
+            "state": 4,
+            "command": {
+                "id": "10",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ntest_matrix = [[[1,2,3,4], [1,2,5,8]], [[1,2,3,4], [1,2,5,8]]]\nnp.array(test_matrix).flatten()\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-02-28T12:19:57.882374",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-02-28T12:19:57.882374"
+            }
+        }
+    },
+    "branches": [
+        {
+            "id": "1",
+            "createdAt": "2022-02-28T06:19:57.882420",
+            "lastModifiedAt": "2022-02-28T06:19:57.882425",
+            "isDefault": true,
+            "properties": [
+                {
+                    "key": "name",
+                    "value": "2_numpy_reshape.ipynb"
+                }
+            ],
+            "workflows": [
+                {
+                    "id": "1",
+                    "createdAt": "2022-02-28T06:19:57.882387",
+                    "action": "create",
+                    "packageId": "null",
+                    "commandId": "null",
+                    "actionModule": "null",
+                    "modules": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10"
+                    ]
+                }
+            ]
+        }
+    ],
+    "createdAt": "2022-02-28T12:19:57.882374",
+    "lastModifiedAt": "2022-02-28T12:19:57.882374"
+}
