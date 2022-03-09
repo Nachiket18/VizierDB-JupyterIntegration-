@@ -54,7 +54,7 @@ def main():
 
     ##path = "/home/nachiket/python_data_notebooks/extracted_python/final_notebooks_dataset/script221.ipynb"
     
-    path = "/home/nachiket/test_notebooks_parallel/Merge.ipynb"
+    path = "/home/nachiket/test_notebooks_parallel/BasicPandas.ipynb"
     out = nb.read(path,as_version=4)
     
     cell_id = 1
@@ -99,9 +99,12 @@ def main():
                 tmp_input_provenance_list = []
                 vertices_list_input_provenance = list(vertex.getBackConnections())
                 for v in vertices_list_input_provenance:
-                    if v.getWeight(vertex) not in tmp_input_provenance_list:
-                        tmp_input_provenance_list.append(v.getWeight(vertex))
-                        processed_source_pre +=  v.getWeight(vertex) + " = vizierdb[" "'" + v.getWeight(vertex) + "'" "]" + "\n"
+                    for weights in v.getWeight(vertex):
+                        if v.getWeight(vertex) not in tmp_input_provenance_list:
+                            for vert in v.getWeight(vertex):
+                                if vert not in tmp_input_provenance_list:
+                                    tmp_input_provenance_list.append(vert)
+                                    processed_source_pre +=  vert + " = vizierdb[" "'" + vert + "'" "]" + "\n"
                 command_properties['input_provenance'] = tmp_input_provenance_list
             else:
                 command_properties['input_provenance'] = []
@@ -112,11 +115,14 @@ def main():
                 output_provenance_len = len(vertices_list_output_provenance)-1
                 for v in vertices_list_output_provenance:
                     if vertex.getWeight(v) not in tmp_output_provenance_list:
-                        tmp_output_provenance_list.append(vertex.getWeight(v))
-                        if vertices_list_output_provenance.index(v) == output_provenance_len:
-                            processed_source_post += "vizierdb[" "'"  + vertex.getWeight(v) + "'" "] = " + vertex.getWeight(v)    
-                        else:
-                            processed_source_post += "vizierdb[" "'"  + vertex.getWeight(v) + "'" "] = " + vertex.getWeight(v) + "\n"
+                        for vert in vertex.getWeight(v):
+                            if vert not in tmp_output_provenance_list:
+                                tmp_output_provenance_list.append(vert)
+                            
+                                if vertices_list_output_provenance.index(v) == output_provenance_len:
+                                    processed_source_post += "vizierdb[" "'"  + vert + "'" "] = " + vert   
+                                else:
+                                    processed_source_post += "vizierdb[" "'"  + vert + "'" "] = " + vert + "\n"
                 command_properties['output_provenance'] = tmp_output_provenance_list
                  
             else:
@@ -180,8 +186,8 @@ def main():
     project_placeholder = export_project()
     
     project = project_placeholder.return_json_project(properties,"1", [] ,modules,branches,cureent_date,cureent_date)
-    
-    with open('project_Merge.json', 'w') as outfile:
+    print(project)    
+    with open('project_BasicPandas.json', 'w') as outfile:
         json.dump(project, outfile)
     
         

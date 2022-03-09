@@ -9,7 +9,7 @@ import ast
 import os
 import queue 
 from collections import deque,defaultdict
-from ast_parse import Visitast,Graph
+from ast_parse import Graphprocess, Visitast,Graph
 from itertools import groupby,chain
 
 import pickle
@@ -102,7 +102,7 @@ class parse_notebook:
 
     def processGraph(g):
 
-        g_prime = Graph()
+        g_prime = Graphprocess()
     
         for v in g:
         
@@ -111,11 +111,11 @@ class parse_notebook:
             if new_vertex[0] not in g_prime.getVertices():
                 g_prime.addVertex(new_vertex[0])
         
-
             if not v.getConnections():
                 continue
         
             else:
+                
                 for nbr in v.getConnections():
 
                     if nbr.getId()[0] not in g_prime.getVertices():
@@ -123,8 +123,6 @@ class parse_notebook:
 
                     if nbr.getId()[0] != new_vertex[0]:
                         g_prime.addEdge(v.getId()[0],nbr.getId()[0], v.getWeight(nbr) )
-
-                #print(v.getId(),"->",nbr.getId(),"on",v.getWeight(nbr))
                  
         return g_prime
     
@@ -631,6 +629,7 @@ class parse_notebook:
 
         g_prime = parse_notebook.processGraph(g)
 
+        #parse_notebook.print_dependency_graph(g)
         parse_notebook.print_dependency_graph(g_prime)
         
         return g_prime   
