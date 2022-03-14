@@ -1,0 +1,400 @@
+{
+    "properties": [
+        {
+            "key": "name",
+            "value": "BasicPandas.ipynb"
+        }
+    ],
+    "defaultBranch": "1",
+    "files": [],
+    "modules": {
+        "1": {
+            "id": "1",
+            "state": 4,
+            "command": {
+                "id": "1",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\n \nvizierdb['np'] = np\nvizierdb['pd'] = pd\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "np",
+                        "pd"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980357",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980357"
+            }
+        },
+        "2": {
+            "id": "2",
+            "state": 4,
+            "command": {
+                "id": "2",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\npd = vizierdb['pd']\nrows = 10\nd = {\n    \"gender\": np.random.choice(['m', 'f'], 10),\n    \"age\": np.random.random_integers(0, 100, 10),\n    \"cell_phone\": np.random.choice(['ios', 'android', 'windows'], 10)\n}\n\ndf1 = pd.DataFrame(d, index=list(map(chr, range(97, 107))), columns=['gender', 'age', 'cell_phone'])\ndf1['cell_phone'] = df1['cell_phone'].astype('category')\ndf1['gender'] = df1['gender'].astype('category')\nvizierdb['df1'] = df1\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "pd"
+                    ],
+                    "output_provenance": [
+                        "df1"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980401",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980401"
+            }
+        },
+        "3": {
+            "id": "3",
+            "state": 4,
+            "command": {
+                "id": "3",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df1 = vizierdb['df1']\ndf1\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df1"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980425",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980425"
+            }
+        },
+        "4": {
+            "id": "4",
+            "state": 4,
+            "command": {
+                "id": "4",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df1 = vizierdb['df1']\nassert 'a' in df1.index\nassert 'j' in df1.index\nassert 'age' in df1.columns\nassert 'cell_phone' in df1.columns\nassert 'gender' in df1.columns\nassert df1.age.dtype.name=='int64'\nassert df1.cell_phone.dtype.name=='category'\nassert df1.gender.dtype.name=='category'\nassert list(df1.columns)==['gender','age','cell_phone']\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df1"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980450",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980450"
+            }
+        },
+        "5": {
+            "id": "5",
+            "state": 4,
+            "command": {
+                "id": "5",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "np = vizierdb['np']\ndf1 = vizierdb['df1']\ndf2 = df1[:]['a':'g'].iloc[::-1]\ndf2 = df2[['age', 'gender']]\ndf2['income'] = np.random.random_integers(0, 10000, 7)\ndf2['expenses'] = np.random.random_integers(0, 10000, 7)\ndf2['profit'] = df2['income'] - df2['expenses']\nvizierdb['df2'] = df2\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "np",
+                        "df1"
+                    ],
+                    "output_provenance": [
+                        "df2"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980480",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980480"
+            }
+        },
+        "6": {
+            "id": "6",
+            "state": 4,
+            "command": {
+                "id": "6",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df2 = vizierdb['df2']\ndf2\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df2"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980503",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980503"
+            }
+        },
+        "7": {
+            "id": "7",
+            "state": 4,
+            "command": {
+                "id": "7",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df2 = vizierdb['df2']\nassert df2.index[0]=='g'\nassert df2.index[-1]=='a'\nassert list(df2.columns)==['age','gender','income','expenses','profit']\nassert df2.income.dtype.name=='int64'\nassert df2.expenses.dtype.name=='int64'\nassert df2.expenses.dtype.name=='int64'\nassert all(df2.profit+df2.expenses-df2.income==0)\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df2"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980527",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980527"
+            }
+        },
+        "8": {
+            "id": "8",
+            "state": 4,
+            "command": {
+                "id": "8",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "def mean_and_std(s):\n    \"\"\"Compute the mean and std of series s.\n    \n    Parameters\n    ----------\n    s : Series\n    \n    Returns\n    -------\n    Series containing the mean and std of s with an index of `mean` and `std`.\n    \"\"\"\n    return s.describe()[['mean', 'std']]\nvizierdb['mean_and_std'] = mean_and_std\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [],
+                    "output_provenance": [
+                        "mean_and_std"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980552",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980552"
+            }
+        },
+        "9": {
+            "id": "9",
+            "state": 4,
+            "command": {
+                "id": "9",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df2 = vizierdb['df2']\nmean_and_std = vizierdb['mean_and_std']\nassert list(mean_and_std(df2.age).index)==['mean','std']\nassert mean_and_std(df2.age)['mean']==df2.age.describe()['mean']\nassert mean_and_std(df2.age)['std']==df2.age.describe()['std']\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df2",
+                        "mean_and_std"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980577",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980577"
+            }
+        },
+        "10": {
+            "id": "10",
+            "state": 4,
+            "command": {
+                "id": "10",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df2 = vizierdb['df2']\nmean_and_std = vizierdb['mean_and_std']\nstats = df2[['income', 'expenses', 'profit']].apply(mean_and_std)\nvizierdb['stats'] = stats\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df2",
+                        "mean_and_std"
+                    ],
+                    "output_provenance": [
+                        "stats"
+                    ]
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980605",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980605"
+            }
+        },
+        "11": {
+            "id": "11",
+            "state": 4,
+            "command": {
+                "id": "11",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "stats = vizierdb['stats']\nstats\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "stats"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980627",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980627"
+            }
+        },
+        "12": {
+            "id": "12",
+            "state": 4,
+            "command": {
+                "id": "12",
+                "packageId": "script",
+                "commandId": "python",
+                "arguments": [
+                    {
+                        "id": "source",
+                        "value": "df2 = vizierdb['df2']\nstats = vizierdb['stats']\nd = df2[['income','expenses','profit']].describe()\nassert 'income' in stats.columns\nassert 'expenses' in stats.columns\nassert 'profit' in stats.columns\nassert stats.loc['mean','income']==d.loc['mean','income']\nassert stats.loc['mean','expenses']==d.loc['mean','expenses']\nassert stats.loc['mean','profit']==d.loc['mean','profit']\nassert stats.loc['std','income']==d.loc['std','income']\nassert stats.loc['std','expenses']==d.loc['std','expenses']\nassert stats.loc['std','profit']==d.loc['std','profit']\n"
+                    }
+                ],
+                "properties": {
+                    "input_provenance": [
+                        "df2",
+                        "stats"
+                    ],
+                    "output_provenance": []
+                }
+            },
+            "text": "null",
+            "timestamps": {
+                "createdAt": "2022-03-05T23:45:52.980654",
+                "startedAt": null,
+                "finishedAt": null,
+                "lastModifiedAt": "2022-03-05T23:45:52.980654"
+            }
+        }
+    },
+    "branches": [
+        {
+            "id": "1",
+            "createdAt": "2022-03-05T17:45:52.980691",
+            "lastModifiedAt": "2022-03-05T17:45:52.980696",
+            "isDefault": true,
+            "properties": [
+                {
+                    "key": "name",
+                    "value": "BasicPandas.ipynb"
+                }
+            ],
+            "workflows": [
+                {
+                    "id": "1",
+                    "createdAt": "2022-03-05T17:45:52.980668",
+                    "action": "create",
+                    "packageId": "null",
+                    "commandId": "null",
+                    "actionModule": "null",
+                    "modules": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "12"
+                    ]
+                }
+            ]
+        }
+    ],
+    "createdAt": "2022-03-05T23:45:52.980654",
+    "lastModifiedAt": "2022-03-05T23:45:52.980654"
+}
